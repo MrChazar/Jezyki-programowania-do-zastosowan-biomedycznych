@@ -1,0 +1,168 @@
+<div class="calendar-topbar" aria-hidden="true"></div>
+
+<div class="calendar-page">
+  <h1>Kalendarz pomiarów</h1>
+
+  <div class="calendar-columns">
+    <section class="card calendar" aria-labelledby="calendar-month">
+      <div class="calendar__header">
+        <h2 id="calendar-month" aria-live="polite">{{ monthTitle() }}</h2>
+        <div class="calendar__controls">
+          <button
+            class="icon-button"
+            type="button"
+            aria-label="Poprzedni miesiąc"
+            [disabled]="atFirstMonth()"
+            (click)="changeMonth(-1)"
+          >
+            <app-icon name="left" />
+          </button>
+          <button
+            class="icon-button"
+            type="button"
+            aria-label="Następny miesiąc"
+            [disabled]="atLastMonth()"
+            (click)="changeMonth(1)"
+          >
+            <app-icon name="right" />
+          </button>
+        </div>
+      </div>
+
+      <div class="calendar__grid" [attr.aria-busy]="dates.isLoading()">
+        @for (weekday of weekdays; track weekday[0]) {
+          <abbr class="calendar__weekday" [title]="weekday[1]">{{ weekday[0] }}</abbr>
+        }
+        @for (cell of cells(); track $index) {
+          @if (cell) {
+            <button
+              type="button"
+              class="calendar__day"
+              [class.has-measurements]="cell.marked"
+              [class.is-future]="cell.date > today"
+              [class.is-selected]="cell.date === selectedDate()"
+              [attr.aria-current]="cell.date === today ? 'date' : null"
+              [attr.aria-pressed]="cell.date === selectedDate()"
+              [attr.aria-label]="cell.label"
+              (click)="selectDate(cell.date)"
+            >
+              {{ cell.day }}
+            </button>
+          } @else {
+            <span aria-hidden="true"></span>
+          }
+        }
+      </div>
+      <p class="calendar__legend"><span></span>Dzień z pomiarami</p>
+      @if (dates.error()) {
+        <div class="state state--error">
+          <p role="alert">
+            {{ errorMessage(dates.error(), 'Nie udało się pobrać oznaczeń kalendarza.') }}
+          </p>
+          <button class="text-button" type="button" (click)="dates.reload()">
+            Spróbuj ponownie
+          </button>
+        </div>
+      }
+    </section>
+
+    <section class="card day" aria-labelledby="day-title" [attr.aria-busy]="day.isLoading()">
+      <div class="day__header">
+        <h2 id="day-title" aria-live="polite">{{ dayTitle() }}</h2>
+        @if (day.hasValue() && day.value().summary.durationSeconds > 0) {
+          <p>
+            {{ sessionCount(day.value().sessionIds.length) }} ·
+            {{ duration(day.value().summary.durationSeconds) }} pomiarów
+          </p>
+        }
+      </div>
+      <div class="day__stats">
+        @for (stat of dayStats(); track stat.label) {
+          <div>
+            <h3>{{ stat.label }}</h3>
+            <p>
+              <strong>{{ bpm(stat.value) }}</strong>
+              @if (stat.value != null) {
+                <span>bpm</span>
+              }
+            </p>
+          </div>
+        }
+      </div>
+
+      @if (day.isLoading()) {
+        <p class="state" role="status">Wczytywanie pomiarów…</p>
+      } @else if (day.error()) {
+        <div class="state state--error">
+          <p role="alert">{{ errorMessage(day.error(), 'Nie udało się pobrać pomiarów dnia.') }}</p>
+          <button class="text-button" type="button" (click)="day.reload()">Spróbuj ponownie</button>
+        </div>
+      } @else if (day.hasValue() && day.value().summary.durationSeconds === 0) {
+        <p class="state">Brak pomiarów w tym dniu.</p>
+      } @else if (sessions.isLoading()) {
+        <p class="state" role="status">Wczytywanie sesji…</p>
+      } @else if (sessions.error()) {
+        <div class="state state--error">
+          <p role="alert">
+            {{ errorMessage(sessions.error(), 'Nie udało się pobrać sesji z tego dnia.') }}
+          </p>
+          <button class="text-button" type="button" (click)="sessions.reload()">
+            Spróbuj ponownie
+          </button>
+        </div>
+      } @else if (sessions.value(); as rows) {
+        @if (rows.length === 0) {
+          <p class="state">Brak sesji w tym dniu.</p>
+        } @else {
+          <div class="session-row session-row--labels day__labels" aria-hidden="true">
+            <span>Sesje z tego dnia</span><span>Czas</span><span>Średnie</span>
+          </div>
+          <ul class="session-list day__list" aria-label="Sesje z tego dnia">
+            @for (row of rows; track row.session.id) {
+              <li>
+                <button
+                  type="button"
+                  class="session-row session-row--entry day__session"
+                  [class.is-selected]="selectedSession() === row.session.id"
+                  [attr.aria-expanded]="selectedSession() === row.session.id"
+                  [attr.aria-controls]="
+                    selectedSession() === row.session.id ? 'session-details' : null
+                  "
+                  (click)="selectSession(row.session.id)"
+                >
+                  <time [attr.datetime]="row.session.startedAtUtc">{{
+                    sessionTime(row.session.startedAtUtc)
+                  }}</time>
+                  <span class="session-row__name">{{ row.session.name }}</span>
+                  <span class="session-row__duration"
+                    ><span class="sr-only">Czas trwania </span
+                    >{{ sessionDuration(row.session) }}</span
+                  >
+                  <strong class="session-row__bpm"
+                    ><span class="sr-only">Średnie tętno </span>{{ bpm(row.statistics.averageBpm)
+                    }}{{ row.statistics.averageBpm == null ? '' : ' bpm' }}</strong
+                  >
+                  <app-icon [name]="selectedSession() === row.session.id ? 'down' : 'right'" />
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      }
+    </section>
+  </div>
+
+  @if (selectedSession(); as sessionId) {
+    <div #detail id="session-details" class="calendar-detail">
+      <app-session-detail [sessionId]="sessionId" />
+    </div>
+  }
+
+  @if (day.hasValue()) {
+    <app-day-measurements
+      [date]="selectedDate()"
+      [measurements]="day.value().samples"
+      [sessionNames]="sessionNames()"
+    />
+  }
+</div>

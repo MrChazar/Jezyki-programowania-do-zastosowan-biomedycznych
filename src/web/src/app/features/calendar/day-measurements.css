@@ -1,0 +1,82 @@
+:host {
+  display: block;
+  margin-top: 1.5rem;
+}
+
+.measurements {
+  padding: 1.25rem 1.4375rem;
+}
+
+.measurements__header,
+.measurements__pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.measurements__header {
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+h2 {
+  font-size: 1.1875rem;
+  font-weight: 600;
+}
+
+.measurements__header p,
+small {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.measurements__header h2 + p {
+  margin-top: 0.25rem;
+}
+
+table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  padding: 0.625rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+td {
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+tr > :first-child {
+  padding-left: 0;
+}
+
+tr > :last-child {
+  padding-right: 0;
+}
+
+td:nth-child(-n + 2) {
+  white-space: nowrap;
+}
+
+small {
+  display: block;
+  margin-top: 0.1875rem;
+}
+
+@container (max-width: 700px) {
+  :host {
+    margin-top: 1rem;
+  }
+
+  .measurements {
+    padding: 0.875rem 1rem;
+  }
+}

@@ -1,0 +1,74 @@
+@baseUrl = http://localhost:5000
+@accessToken = WKLEJ_ACCESS_TOKEN_Z_LOGOWANIA
+@refreshToken = WKLEJ_REFRESH_TOKEN_Z_LOGOWANIA
+
+### Logowanie użytkownika z seedera. Skopiuj tokeny do zmiennych powyżej.
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "jakub@example.com",
+  "password": "Jakub123!"
+}
+
+### Profil
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{accessToken}}
+
+### Lista sesji
+GET {{baseUrl}}/api/sessions?page=1&pageSize=10
+Authorization: Bearer {{accessToken}}
+
+### Zmiana wyłącznie nazwy i tagów
+PATCH {{baseUrl}}/api/sessions/seed-session
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Spacer",
+  "tags": ["ruch", "na zewnątrz"]
+}
+
+### Wszystkie próbki przykładowej sesji
+GET {{baseUrl}}/api/sessions/seed-session/measurements?pageSize=100
+Authorization: Bearer {{accessToken}}
+
+### Statystyki sesji
+GET {{baseUrl}}/api/sessions/seed-session/statistics
+Authorization: Bearer {{accessToken}}
+
+### Statystyki z ostatniego miesiąca
+GET {{baseUrl}}/api/measurements/statistics
+Authorization: Bearer {{accessToken}}
+
+### Identyfikatory pomiarów
+GET {{baseUrl}}/api/measurements?pageSize=100
+Authorization: Bearer {{accessToken}}
+
+### Kalendarz bieżącego miesiąca z id pomiarów
+GET {{baseUrl}}/api/measurements/dates
+Authorization: Bearer {{accessToken}}
+
+### Wybierz datę z kalendarza
+GET {{baseUrl}}/api/measurements/day/2026-11-17?pageSize=100
+Authorization: Bearer {{accessToken}}
+
+### Zwykły pomiar (średnia z 10 sekund)
+GET {{baseUrl}}/api/measurements/seed-normal-1
+Authorization: Bearer {{accessToken}}
+
+### Urządzenia
+GET {{baseUrl}}/api/devices
+Authorization: Bearer {{accessToken}}
+
+### Odnowienie tokenów. Stary refresh token przestanie działać.
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Wylogowanie
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{accessToken}}

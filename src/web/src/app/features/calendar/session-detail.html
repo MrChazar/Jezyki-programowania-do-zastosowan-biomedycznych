@@ -1,0 +1,80 @@
+<section
+  class="card session"
+  aria-labelledby="session-title"
+  [attr.aria-busy]="session.isLoading()"
+>
+  @if (session.isLoading()) {
+    <h2 id="session-title">Sesja</h2>
+    <p class="state" role="status">Wczytywanie sesji…</p>
+  } @else if (session.error()) {
+    <h2 id="session-title">Sesja</h2>
+    <div class="state state--error">
+      <p role="alert">{{ error() }}</p>
+      <button class="text-button" type="button" (click)="session.reload()">Spróbuj ponownie</button>
+    </div>
+  } @else if (session.value(); as data) {
+    <div class="session__header">
+      <div>
+        <h2 id="session-title">{{ data.details.name }}</h2>
+        <p class="session__description">{{ formatSession(data.details) }}</p>
+      </div>
+      @if (timeline().duration > 0) {
+        <button
+          class="button button--soft"
+          type="button"
+          [attr.aria-pressed]="selecting()"
+          (click)="toggleSelection()"
+        >
+          <app-icon name="range" /> Zaznacz zakres na wykresie
+        </button>
+      }
+    </div>
+
+    @if (data.measurements.length === 0) {
+      <p class="state">Brak pomiarów w tej sesji.</p>
+    } @else {
+      @if (data.statistics.measurementCount > 0) {
+        <div class="session__overview" aria-label="Statystyki całej sesji">
+          <strong>Cała sesja</strong>
+          <span><abbr title="Średnie">Śr.</abbr> {{ bpm(data.statistics.averageBpm) }} bpm</span>
+          <span><abbr title="Minimalne">Min.</abbr> {{ bpm(data.statistics.minimumBpm) }} bpm</span>
+          <span
+            ><abbr title="Maksymalne">Maks.</abbr> {{ bpm(data.statistics.maximumBpm) }} bpm</span
+          >
+        </div>
+      }
+      <app-line-chart
+        class="session-chart"
+        [points]="timeline().points"
+        [labels]="ticks()"
+        label="Tętno w czasie sesji"
+        [positionLabel]="timeAt"
+        [interactive]="selecting()"
+        [range]="range()"
+        (rangeChange)="range.set($event)"
+      />
+      @if (rangeSummary(); as selection) {
+        <div class="session__selection">
+          <div class="session__selection-time" aria-live="polite">
+            <span>Wybrany zakres</span>
+            <strong>{{ selection.label }}</strong>
+          </div>
+          @if (selection.summary.averageBpm === null) {
+            <p class="session__no-samples">Brak pomiarów w zakresie.</p>
+          } @else {
+            <div>
+              <span>Średnie</span><strong>{{ bpm(selection.summary.averageBpm) }} bpm</strong>
+            </div>
+            <div>
+              <span>Minimalne</span><strong>{{ bpm(selection.summary.minimumBpm) }} bpm</strong>
+            </div>
+            <div>
+              <span>Maksymalne</span><strong>{{ bpm(selection.summary.maximumBpm) }} bpm</strong>
+            </div>
+          }
+          <button class="text-button" type="button" (click)="clearRange()">Wyczyść</button>
+        </div>
+      }
+    }
+  }
+</section>

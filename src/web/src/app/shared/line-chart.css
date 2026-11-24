@@ -1,0 +1,140 @@
+:host {
+  display: block;
+}
+
+.chart {
+  padding: 0 0.5rem 0 2.625rem;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart__unit {
+  margin: 0 0 0.625rem -2.625rem;
+}
+
+.chart__plot {
+  position: relative;
+  height: var(--plot-height, 6.25rem);
+}
+
+.chart__plot--interactive {
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+
+.chart__gridline,
+.chart__svg,
+.chart__selection {
+  position: absolute;
+  pointer-events: none;
+}
+
+.chart__gridline {
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--line);
+}
+
+.chart__gridline span {
+  position: absolute;
+  top: 50%;
+  left: -2.625rem;
+  transform: translateY(-50%);
+}
+
+.chart__svg {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chart__stroke {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart__area {
+  fill: var(--accent);
+  opacity: 0.045;
+}
+
+.chart__dot {
+  position: absolute;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+}
+
+.chart__labels {
+  position: relative;
+  height: 1rem;
+  margin-top: 0.875rem;
+}
+
+.chart__labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.chart__selection {
+  inset-block: 0;
+  border-inline: 1px solid var(--accent);
+  background: rgb(138 10 10 / 9%);
+}
+
+.chart__handle {
+  position: absolute;
+  top: 50%;
+  width: 1.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.375rem;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: ew-resize;
+}
+
+.chart__handle::before {
+  content: '';
+  position: absolute;
+  inset: 0.5rem 0.625rem;
+  border-radius: 0.25rem;
+  background: var(--accent);
+}
+
+.chart__handle::after {
+  content: '';
+  position: absolute;
+  inset: 1rem calc(50% - 1px);
+  background: #fff;
+}
+
+@media (max-width: 500px) {
+  .chart {
+    padding-left: 1.875rem;
+    font-size: 0.625rem;
+  }
+
+  .chart__unit {
+    margin-left: -1.875rem;
+  }
+
+  .chart__gridline span {
+    left: -1.875rem;
+  }
+
+  :host(.session-chart) .chart__labels span:nth-child(even) {
+    display: none;
+  }
+}

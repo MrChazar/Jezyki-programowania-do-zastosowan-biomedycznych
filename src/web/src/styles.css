@@ -1,0 +1,263 @@
+:root {
+  color-scheme: light;
+  --background: #f5f5f7;
+  --surface: #fff;
+  --ink: #222;
+  --muted: #646a73;
+  --subtle: #6f7782;
+  --line: #e0e2e5;
+  --accent: #8a0a0a;
+  --accent-hover: #6e0808;
+  --accent-soft: #f6ebeb;
+  --sidebar: #212121;
+  --radius: 0.625rem;
+  --page-gutter: clamp(1rem, 3vw, 2.5rem);
+
+  color: var(--ink);
+  background: var(--background);
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand img {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+}
+
+.card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.button,
+.icon-button,
+.text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+
+.button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.button:hover:enabled,
+a.button:hover {
+  background: #f8f8f9;
+}
+
+.button--primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.button--primary:hover:enabled {
+  background: var(--accent-hover);
+}
+
+.button--soft {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent);
+}
+
+.button--soft:hover:enabled,
+.button--soft[aria-pressed='true'] {
+  background: #eedada;
+}
+
+.icon-button {
+  width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  flex: none;
+}
+
+.icon-button:hover:enabled {
+  background: #f1f1f3;
+  color: var(--ink);
+}
+
+.text-button {
+  min-height: 2.5rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.text-button:hover {
+  background: var(--accent-soft);
+}
+
+.state {
+  padding: 1rem 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.state .text-button {
+  margin-top: 0.25rem;
+  margin-left: -0.5rem;
+}
+
+.state--error,
+.field-error {
+  color: var(--accent);
+}
+
+.field-error {
+  font-size: 0.875rem;
+}
+
+.session-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.session-row {
+  display: grid;
+  grid-template-columns: var(--session-columns);
+  align-items: center;
+  gap: var(--session-gap, 0.625rem);
+}
+
+.session-row--labels {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.session-row--entry {
+  font-size: var(--session-font-size, 0.875rem);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.session-row--entry:hover {
+  background: #f8f8f9;
+}
+
+.session-row--entry app-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+@container (max-width: 590px) {
+  .session-row--entry {
+    grid-template-columns: minmax(0, 1fr) auto 1.125rem;
+    grid-template-areas: 'name name open' 'date bpm open' 'duration duration open';
+    gap: 0.1875rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .session-row__name {
+    grid-area: name;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .session-row--entry time {
+    grid-area: date;
+  }
+  .session-row__duration {
+    grid-area: duration;
+  }
+  .session-row__bpm {
+    grid-area: bpm;
+  }
+  .session-row--entry app-icon {
+    grid-area: open;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

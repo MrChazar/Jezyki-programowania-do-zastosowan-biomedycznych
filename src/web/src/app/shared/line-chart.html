@@ -1,0 +1,64 @@
+<div class="chart" role="group" [attr.aria-label]="label()">
+  <div class="chart__unit" aria-hidden="true">bpm</div>
+  <div
+    #plot
+    class="chart__plot"
+    [class.chart__plot--interactive]="interactive()"
+    (pointerdown)="start($event, plot)"
+    (pointermove)="move($event, plot)"
+    (pointerup)="end($event, plot)"
+    (pointercancel)="cancel($event)"
+  >
+    @for (tick of geometry().ticks; track tick.value) {
+      <div class="chart__gridline" [style.top.%]="tick.top" aria-hidden="true">
+        <span>{{ tick.value }}</span>
+      </div>
+    }
+    @if (range(); as selected) {
+      <div
+        class="chart__selection"
+        [style.left.%]="selected[0] * 100"
+        [style.width.%]="(selected[1] - selected[0]) * 100"
+        aria-hidden="true"
+      ></div>
+    }
+    <svg class="chart__svg" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+      @if (fill()) {
+        <path class="chart__area" [attr.d]="geometry().area" />
+      }
+      <path class="chart__stroke" [attr.d]="geometry().line" vector-effect="non-scaling-stroke" />
+    </svg>
+    @for (point of geometry().dots; track point.left) {
+      <span
+        class="chart__dot"
+        [style.left.%]="point.left"
+        [style.top.%]="point.top"
+        aria-hidden="true"
+      ></span>
+    }
+    @if (interactive() && range(); as selected) {
+      @for (handle of handles; track handle) {
+        <button
+          type="button"
+          class="chart__handle"
+          role="slider"
+          [attr.data-handle]="handle"
+          [style.left.%]="selected[handle] * 100"
+          [attr.aria-label]="handle === 0 ? 'Początek zakresu' : 'Koniec zakresu'"
+          [attr.aria-valuemin]="handle === 0 ? 0 : selected[0] * 100"
+          [attr.aria-valuemax]="handle === 0 ? selected[1] * 100 : 100"
+          [attr.aria-valuenow]="selected[handle] * 100"
+          [attr.aria-valuetext]="positionLabel()(selected[handle])"
+          (keydown)="moveByKey($event, handle, selected)"
+        ></button>
+      }
+    }
+  </div>
+  <div class="chart__labels" aria-hidden="true">
+    @for (text of labels(); track $index) {
+      <span [style.left.%]="labels().length === 1 ? 50 : (100 * $index) / (labels().length - 1)">{{
+        text
+      }}</span>
+    }
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application
+    x:Class="HeartRate.Mobile.App"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PageBackground">#07111F</Color>
+            <Color x:Key="CardBackground">#0F1B2D</Color>
+            <Color x:Key="PrimaryText">#F8FAFC</Color>
+            <Color x:Key="SecondaryText">#94A3B8</Color>
+            <Color x:Key="Accent">#FB7185</Color>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

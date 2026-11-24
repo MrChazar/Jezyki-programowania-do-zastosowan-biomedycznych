@@ -1,0 +1,163 @@
+<main class="auth">
+  <aside class="auth__intro" aria-label="HeartRate">
+    <a class="brand" routerLink="/">
+      <img src="heartrate.svg" alt="" />
+      <span>HeartRate</span>
+    </a>
+    <p>Monitoruj swój stan zdrowia</p>
+  </aside>
+
+  <section class="auth__content" aria-labelledby="auth-title">
+    <div class="auth__panel">
+      <div class="auth__switch">
+        @if (registering) {
+          <span>Masz już konto?</span>
+          <a class="text-button" routerLink="/logowanie">Zaloguj się</a>
+        } @else {
+          <span>Nie masz konta?</span>
+          <a class="text-button" routerLink="/rejestracja">Zarejestruj się</a>
+        }
+      </div>
+
+      <h1 id="auth-title">{{ registering ? 'Rejestracja' : 'Logowanie' }}</h1>
+      @if (registeredEmail) {
+        <p class="auth__success" role="status">
+          Konto zostało utworzone. Zaloguj się, aby przejść do pulpitu.
+        </p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        @if (registering) {
+          <div class="auth__field">
+            <label for="auth-name">Imię</label>
+            <div class="auth__input">
+              <app-icon name="user" />
+              <input
+                id="auth-name"
+                autocomplete="given-name"
+                formControlName="name"
+                placeholder="Jak masz na imię?"
+                maxlength="100"
+                required
+                [attr.aria-invalid]="form.controls.name.touched && !form.controls.name.value.trim()"
+                aria-describedby="auth-name-error"
+              />
+            </div>
+            @if (form.controls.name.touched && !form.controls.name.value.trim()) {
+              <p id="auth-name-error" class="field-error">Podaj imię.</p>
+            }
+          </div>
+        }
+
+        <div class="auth__field">
+          <label for="auth-email">Adres e-mail</label>
+          <div class="auth__input">
+            <app-icon name="mail" />
+            <input
+              id="auth-email"
+              type="email"
+              autocomplete="username"
+              formControlName="email"
+              placeholder="anna@przyklad.pl"
+              maxlength="254"
+              required
+              [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+              aria-describedby="auth-email-error"
+            />
+          </div>
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <p id="auth-email-error" class="field-error">Podaj poprawny adres e-mail.</p>
+          }
+        </div>
+
+        <div class="auth__field">
+          <label for="auth-password">Hasło</label>
+          <div class="auth__input">
+            <app-icon name="lock" />
+            <input
+              id="auth-password"
+              [type]="visible() ? 'text' : 'password'"
+              [autocomplete]="registering ? 'new-password' : 'current-password'"
+              [placeholder]="registering ? 'Utwórz hasło' : 'Wpisz hasło'"
+              formControlName="password"
+              minlength="8"
+              maxlength="128"
+              required
+              [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+              [attr.aria-describedby]="
+                registering ? 'auth-password-hint auth-password-error' : 'auth-password-error'
+              "
+            />
+            <button
+              class="icon-button"
+              type="button"
+              (click)="visible.set(!visible())"
+              [attr.aria-label]="visible() ? 'Ukryj hasło' : 'Pokaż hasło'"
+            >
+              <app-icon [name]="visible() ? 'eye-off' : 'eye'" />
+            </button>
+          </div>
+          @if (registering) {
+            <p id="auth-password-hint" class="auth__hint">Od 8 do 128 znaków.</p>
+          }
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <p id="auth-password-error" class="field-error">
+              Wpisz hasło o długości od 8 do 128 znaków.
+            </p>
+          }
+        </div>
+
+        @if (registering) {
+          <div class="auth__field">
+            <label for="auth-confirmation">Powtórz hasło</label>
+            <div class="auth__input">
+              <app-icon name="lock" />
+              <input
+                id="auth-confirmation"
+                [type]="confirmationVisible() ? 'text' : 'password'"
+                autocomplete="new-password"
+                formControlName="confirmation"
+                placeholder="Wpisz hasło ponownie"
+                maxlength="128"
+                required
+                [attr.aria-invalid]="
+                  form.controls.confirmation.touched &&
+                  (form.controls.confirmation.invalid ||
+                    form.controls.confirmation.value !== form.controls.password.value)
+                "
+                aria-describedby="auth-confirmation-error"
+              />
+              <button
+                class="icon-button"
+                type="button"
+                (click)="confirmationVisible.set(!confirmationVisible())"
+                [attr.aria-label]="
+                  confirmationVisible() ? 'Ukryj powtórzone hasło' : 'Pokaż powtórzone hasło'
+                "
+              >
+                <app-icon [name]="confirmationVisible() ? 'eye-off' : 'eye'" />
+              </button>
+            </div>
+            @if (form.controls.confirmation.touched) {
+              @if (form.controls.confirmation.invalid) {
+                <p id="auth-confirmation-error" class="field-error">Wpisz hasło ponownie.</p>
+              } @else if (form.controls.confirmation.value !== form.controls.password.value) {
+                <p id="auth-confirmation-error" class="field-error">Hasła muszą być takie same.</p>
+              }
+            }
+          </div>
+        }
+
+        <div class="auth__submit">
+          @if (error()) {
+            <p class="field-error" role="alert">{{ error() }}</p>
+          }
+          <button class="button button--primary" type="submit" [disabled]="busy()">
+            {{ busy() ? 'Proszę czekać…' : registering ? 'Utwórz konto' : 'Zaloguj się' }}
+            <app-icon name="arrow" />
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>

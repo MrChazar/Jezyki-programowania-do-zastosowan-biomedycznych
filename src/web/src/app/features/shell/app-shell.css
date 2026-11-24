@@ -1,0 +1,252 @@
+.shell {
+  --sidebar-width: 14rem;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.shell--collapsed {
+  --sidebar-width: 4.75rem;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+  padding: 2.25rem 1rem clamp(1rem, 9vh, 6rem);
+  overflow-y: auto;
+  background: var(--sidebar);
+  color: #d5d6d8;
+}
+
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.sidebar__toggle {
+  align-self: flex-end;
+  margin-top: 1.125rem;
+  margin-bottom: 0.625rem;
+}
+
+.sidebar__close,
+.mobile-header,
+.sidebar-backdrop {
+  display: none;
+}
+
+.sidebar .icon-button {
+  color: #b8bdc4;
+}
+
+.sidebar :focus-visible {
+  outline-color: #fff;
+  outline-offset: 1px;
+}
+
+.sidebar__links,
+.sidebar__footer {
+  display: grid;
+  gap: 0.625rem;
+}
+
+.sidebar__footer {
+  margin: auto 0.5rem 0;
+  padding-top: 0.625rem;
+  border-top: 1px solid #424242;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0.375rem 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  text-decoration: none;
+}
+
+.sidebar__link app-icon {
+  color: #9da4ae;
+}
+
+.sidebar__link.active,
+.sidebar__link:hover,
+.sidebar .icon-button:hover {
+  background: #383838;
+  color: #fff;
+}
+
+.sidebar__link.active app-icon {
+  color: #fff;
+}
+
+.sidebar__footer .sidebar__link {
+  padding-inline: 0.375rem;
+}
+
+.profile-state {
+  padding: 2rem var(--page-gutter);
+}
+
+.settings {
+  width: min(28rem, calc(100% - 2rem));
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.settings::backdrop {
+  background: rgb(0 0 0 / 42%);
+}
+
+.settings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings__email,
+.settings__zone {
+  color: var(--muted);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.settings form {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.settings label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.settings input {
+  min-width: 0;
+  min-height: 2.75rem;
+  margin-bottom: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+}
+
+.settings button[type='submit'] {
+  margin-top: 0.75rem;
+  justify-self: end;
+}
+
+@media (width > 760px) {
+  .shell--collapsed .sidebar {
+    padding-inline: 0.75rem;
+  }
+
+  .shell--collapsed .sidebar__top {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .shell--collapsed .sidebar__toggle {
+    align-self: center;
+  }
+
+  .shell--collapsed .sidebar__toggle app-icon {
+    transform: scaleX(-1);
+  }
+
+  .shell--collapsed .sidebar span {
+    display: none;
+  }
+
+  .shell--collapsed .sidebar__link {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .shell--collapsed .sidebar__footer {
+    margin-inline: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 20;
+    width: min(17rem, calc(100% - 3rem));
+    padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+    visibility: hidden;
+    transform: translateX(-100%);
+  }
+
+  .shell--open .sidebar {
+    visibility: visible;
+    transform: translateX(0);
+  }
+
+  .sidebar__top {
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem 0 0.75rem;
+  }
+
+  .sidebar__toggle {
+    display: none;
+  }
+
+  .sidebar__close {
+    display: inline-flex;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+    display: block;
+    width: 100%;
+    border: 0;
+    background: rgb(0 0 0 / 45%);
+  }
+
+  .mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.75rem;
+    padding: 0.5rem var(--page-gutter);
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .mobile-header .brand {
+    gap: 0.5rem;
+    color: var(--ink);
+    font-size: 1.25rem;
+  }
+
+  .mobile-header .icon-button {
+    margin-left: -0.375rem;
+    color: var(--ink);
+  }
+}

@@ -1,0 +1,208 @@
+<div class="dashboard">
+  <div class="dashboard__toolbar">
+    <details #weekPicker class="week-picker">
+      <summary class="button">
+        <app-icon name="calendar" />
+        <span>{{ weekTitle() }}</span>
+        <app-icon name="down" />
+      </summary>
+      <div class="week-picker__panel card">
+        <div class="week-picker__navigation">
+          <button
+            type="button"
+            class="icon-button"
+            aria-label="Poprzedni tydzień"
+            [disabled]="weekStart() <= firstDate"
+            (click)="changeWeek(-1)"
+          >
+            <app-icon name="left" />
+          </button>
+          <button
+            type="button"
+            class="text-button"
+            (click)="chooseWeek(today); weekPicker.open = false"
+          >
+            Bieżący tydzień
+          </button>
+          <button
+            type="button"
+            class="icon-button"
+            aria-label="Następny tydzień"
+            [disabled]="weekStart() >= currentWeek"
+            (click)="changeWeek(1)"
+          >
+            <app-icon name="right" />
+          </button>
+        </div>
+        <label for="week-date">Wybierz dzień tygodnia</label>
+        <input
+          id="week-date"
+          type="date"
+          #weekDate
+          [value]="weekStart()"
+          [min]="firstDate"
+          [max]="today"
+          (change)="chooseWeek(weekDate.value); weekPicker.open = false"
+        />
+      </div>
+    </details>
+  </div>
+
+  <section class="welcome" aria-labelledby="welcome-title">
+    <h1 id="welcome-title">
+      witaj z powrotem
+      <strong>{{ user()?.name }}</strong>
+    </h1>
+    <a class="button" routerLink="/kalendarz"> Otwórz kalendarz <app-icon name="arrow" /> </a>
+  </section>
+
+  <section class="metrics" aria-label="Statystyki tygodnia">
+    @for (metric of metrics(); track metric.title) {
+      <article class="metric card">
+        <h2>{{ metric.title }}</h2>
+        <div class="metric__number">
+          <strong>{{ bpm(metric.value) }}</strong>
+          @if (metric.value != null) {
+            <span>bpm</span>
+          }
+        </div>
+        @if (metric.path) {
+          <svg
+            class="metric__trend"
+            viewBox="0 0 1000 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path [attr.d]="metric.path" vector-effect="non-scaling-stroke" />
+            @if (metric.marker; as point) {
+              <ellipse [attr.cx]="point.x" [attr.cy]="point.y" rx="22" ry="12" />
+            }
+          </svg>
+        }
+        @if (metric.detail) {
+          <p>{{ metric.detail }}</p>
+        }
+      </article>
+    }
+  </section>
+
+  <section
+    class="card dashboard__card week-chart"
+    aria-labelledby="week-title"
+    [attr.aria-busy]="week.isLoading()"
+  >
+    <h2 id="week-title">Twój tydzień w liczbach</h2>
+    <p class="week-chart__subtitle">Średnie tętno każdego dnia</p>
+    @if (week.isLoading()) {
+      <p class="state" role="status">Wczytywanie pomiarów…</p>
+    } @else if (week.error()) {
+      <div class="state state--error">
+        <p role="alert">{{ weekError() }}</p>
+        <button type="button" class="text-button" (click)="week.reload()">Spróbuj ponownie</button>
+      </div>
+    } @else if (metrics()[0].value == null) {
+      <p class="state">Brak pomiarów w wybranym tygodniu.</p>
+    } @else {
+      <app-line-chart
+        [points]="chartPoints()"
+        [labels]="weekLabels()"
+        [label]="chartLabel()"
+        [fill]="true"
+      />
+    }
+  </section>
+
+  <section
+    class="card dashboard__card recent"
+    aria-labelledby="recent-title"
+    [attr.aria-busy]="recent.isLoading()"
+  >
+    <div class="recent__heading">
+      <h2 id="recent-title">Ostatnie sesje</h2>
+      @if (allSessions() || (recent.hasValue() && recent.value().totalCount > 2)) {
+        <button
+          class="text-button"
+          type="button"
+          [attr.aria-expanded]="allSessions()"
+          aria-controls="recent-sessions"
+          (click)="toggleSessionList()"
+        >
+          {{ allSessions() ? 'Pokaż ostatnie' : 'Zobacz wszystkie' }}
+          <app-icon [name]="allSessions() ? 'left' : 'arrow'" />
+        </button>
+      }
+    </div>
+
+    <div id="recent-sessions">
+      @if (recent.isLoading()) {
+        <p class="state" role="status">Wczytywanie sesji…</p>
+      } @else if (recent.error()) {
+        <div class="state state--error">
+          <p role="alert">{{ sessionsError() }}</p>
+          <button class="text-button" type="button" (click)="recent.reload()">
+            Spróbuj ponownie
+          </button>
+        </div>
+      } @else if (recent.value(); as response) {
+        @if (response.sessions.length === 0) {
+          <p class="state">Brak zapisanych sesji.</p>
+        } @else {
+          <div class="session-row session-row--labels recent__labels" aria-hidden="true">
+            <span>Data i godzina</span><span>Aktywność</span> <span>Czas trwania</span
+            ><span>Średnie tętno</span>
+          </div>
+          <ul class="session-list">
+            @for (row of response.sessions; track row.session.id) {
+              <li>
+                <a
+                  class="session-row session-row--entry recent__session"
+                  routerLink="/kalendarz"
+                  [queryParams]="{
+                    date: sessionDate(row.session.startedAtUtc),
+                    session: row.session.id,
+                  }"
+                >
+                  <time [attr.datetime]="row.session.startedAtUtc">{{
+                    sessionTime(row.session.startedAtUtc)
+                  }}</time>
+                  <span class="session-row__name">{{ row.session.name }}</span>
+                  <span class="session-row__duration"
+                    ><span class="sr-only">Czas trwania </span>{{ duration(row.session) }}</span
+                  >
+                  <strong class="session-row__bpm"
+                    ><span class="sr-only">Średnie tętno </span>{{ bpm(row.averageBpm)
+                    }}{{ row.averageBpm == null ? '' : ' bpm' }}</strong
+                  >
+                  <app-icon name="right" />
+                </a>
+              </li>
+            }
+          </ul>
+        }
+        @if (allSessions() && response.totalPages > 1) {
+          <div class="recent__pagination" aria-label="Strony sesji">
+            <button
+              type="button"
+              class="icon-button"
+              aria-label="Poprzednia strona sesji"
+              [disabled]="page() === 1"
+              (click)="changePage(-1)"
+            >
+              <app-icon name="left" />
+            </button>
+            <span>Strona {{ page() }} z {{ response.totalPages }}</span>
+            <button
+              type="button"
+              class="icon-button"
+              aria-label="Następna strona sesji"
+              [disabled]="page() >= response.totalPages"
+              (click)="changePage(1)"
+            >
+              <app-icon name="right" />
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </section>
+</div>

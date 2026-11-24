@@ -1,0 +1,158 @@
+<div class="shell" [class.shell--collapsed]="collapsed()" [class.shell--open]="mobileOpen()">
+  @if (mobileOpen()) {
+    <button
+      type="button"
+      class="sidebar-backdrop"
+      tabindex="-1"
+      aria-label="Zamknij menu"
+      (click)="closeDrawer()"
+    ></button>
+  }
+
+  <aside id="sidebar" class="sidebar" [attr.inert]="mobileHidden() ? '' : null">
+    <div class="sidebar__top">
+      <a class="brand" routerLink="/pulpit" aria-label="HeartRate — pulpit" (click)="closeDrawer()">
+        <img src="heartrate.svg" alt="" />
+        <span>HeartRate</span>
+      </a>
+      <button
+        class="icon-button sidebar__close"
+        #drawerClose
+        type="button"
+        aria-label="Zamknij nawigację"
+        (click)="closeDrawer()"
+      >
+        <app-icon name="close" />
+      </button>
+    </div>
+    <button
+      class="icon-button sidebar__toggle"
+      type="button"
+      aria-controls="main-navigation"
+      [attr.aria-expanded]="!collapsed()"
+      [attr.aria-label]="collapsed() ? 'Rozwiń nawigację' : 'Zwiń nawigację'"
+      [title]="collapsed() ? 'Rozwiń nawigację' : 'Zwiń nawigację'"
+      (click)="toggleSidebar()"
+    >
+      <app-icon name="panel" />
+    </button>
+
+    <nav id="main-navigation" class="sidebar__links" aria-label="Nawigacja główna">
+      <a
+        class="sidebar__link"
+        routerLink="/pulpit"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Pulpit"
+        title="Pulpit"
+        (click)="closeDrawer()"
+      >
+        <app-icon name="home" /> <span>Pulpit</span>
+      </a>
+      <a
+        class="sidebar__link"
+        routerLink="/kalendarz"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        aria-label="Kalendarz"
+        title="Kalendarz"
+        (click)="closeDrawer()"
+      >
+        <app-icon name="calendar" /> <span>Kalendarz</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <button
+        class="sidebar__link"
+        type="button"
+        aria-label="Ustawienia"
+        title="Ustawienia"
+        [disabled]="!profile() || saving()"
+        (click)="openSettings()"
+      >
+        <app-icon name="settings" /> <span>Ustawienia</span>
+      </button>
+      <button
+        class="sidebar__link"
+        type="button"
+        aria-label="Wyloguj się"
+        title="Wyloguj się"
+        [disabled]="signingOut()"
+        (click)="logout()"
+      >
+        <app-icon name="logout" />
+        <span>{{ signingOut() ? 'Wylogowywanie…' : 'Wyloguj się' }}</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="workspace" [attr.inert]="mobileOpen() ? '' : null">
+    <header class="mobile-header">
+      <button
+        class="icon-button"
+        #mobileToggle
+        type="button"
+        aria-label="Otwórz nawigację"
+        aria-controls="sidebar"
+        [attr.aria-expanded]="mobileOpen()"
+        (click)="openDrawer()"
+      >
+        <app-icon name="menu" />
+      </button>
+      <a class="brand" routerLink="/pulpit"><img src="heartrate.svg" alt="" /> HeartRate</a>
+    </header>
+
+    <main>
+      @if (profile()) {
+        <router-outlet />
+      } @else {
+        <div class="profile-state">
+          @if (profileRequest.error()) {
+            <p class="state state--error" role="alert">{{ profileError() }}</p>
+            <button class="button" type="button" (click)="profileRequest.reload()">
+              Spróbuj ponownie
+            </button>
+          } @else {
+            <p class="state" role="status">Wczytywanie profilu…</p>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</div>
+
+<dialog #settings class="settings" aria-labelledby="settings-title">
+  <div class="settings__header">
+    <h2 id="settings-title">Ustawienia</h2>
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Zamknij ustawienia"
+      (click)="settings.close()"
+    >
+      <app-icon name="close" />
+    </button>
+  </div>
+  @if (profile(); as user) {
+    <p class="settings__email">{{ user.email }}</p>
+    <form [formGroup]="profileForm" (ngSubmit)="saveSettings()" novalidate>
+      <label for="profile-name">Imię</label>
+      <input id="profile-name" formControlName="name" maxlength="100" required />
+      @if (profileForm.controls.name.touched && !profileForm.controls.name.value.trim()) {
+        <p class="field-error">Podaj imię.</p>
+      }
+      <label for="profile-surname">Nazwisko</label>
+      <input id="profile-surname" formControlName="surname" maxlength="100" />
+      <p class="settings__zone">
+        Strefa czasowa <strong>{{ user.timeZone }}</strong>
+      </p>
+      @if (settingsError()) {
+        <p class="field-error" role="alert">{{ settingsError() }}</p>
+      }
+      <button type="submit" class="button button--primary" [disabled]="saving()">
+        {{ saving() ? 'Zapisywanie…' : 'Zapisz zmiany' }}
+      </button>
+    </form>
+  }
+</dialog>

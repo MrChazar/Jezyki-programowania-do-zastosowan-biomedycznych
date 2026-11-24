@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="HeartRate.Mobile.Views.SessionsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:HeartRate.Mobile.Models"
+    BackgroundColor="{StaticResource PageBackground}"
+    Title="Sesje">
+    <Grid Padding="24,48,24,24" RowDefinitions="Auto,*">
+        <VerticalStackLayout Spacing="4">
+            <Label
+                FontAttributes="Bold"
+                FontSize="12"
+                Text="PANEL POMIARÓW"
+                TextColor="{StaticResource Accent}" />
+            <Label
+                FontAttributes="Bold"
+                FontSize="36"
+                Text="HeartRate"
+                TextColor="{StaticResource PrimaryText}" />
+        </VerticalStackLayout>
+
+        <RefreshView
+            Grid.Row="1"
+            Margin="0,28,0,0"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsBusy}">
+            <Grid RowDefinitions="Auto,*">
+                <Label
+                    IsVisible="{Binding HasError}"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{StaticResource Accent}" />
+
+                <CollectionView
+                    Grid.Row="1"
+                    ItemsSource="{Binding Sessions}"
+                    SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <Label
+                            Margin="0,32,0,0"
+                            Text="Brak sesji. Przeciągnij w dół, aby odświeżyć."
+                            TextColor="{StaticResource SecondaryText}" />
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:MeasurementSession">
+                            <Border
+                                Margin="0,0,0,12"
+                                Padding="20"
+                                BackgroundColor="{StaticResource CardBackground}"
+                                Stroke="#1E293B"
+                                StrokeShape="RoundRectangle 16">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label
+                                        FontSize="12"
+                                        Text="{Binding Source}"
+                                        TextColor="{StaticResource SecondaryText}" />
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="20"
+                                        Text="{Binding Name}"
+                                        TextColor="{StaticResource PrimaryText}" />
+                                    <Label
+                                        Text="{Binding StartedAtUtc, StringFormat='{0:dd.MM.yyyy HH:mm}'}"
+                                        TextColor="{StaticResource SecondaryText}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </RefreshView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,67 @@
+<section class="card measurements" aria-labelledby="measurements-title">
+  <header class="measurements__header">
+    <div>
+      <h2 id="measurements-title">Pomiary z wybranego dnia</h2>
+      <p>
+        <time [attr.datetime]="date()">{{ dateLabel() }}</time>
+      </p>
+    </div>
+    @if (start() > 0 || end() < measurements().length) {
+      <div class="measurements__pagination" role="group" aria-label="Strony pomiarów">
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Poprzednia strona pomiarów"
+          [disabled]="start() === 0"
+          (click)="changePage(-1)"
+        >
+          <app-icon name="left" />
+        </button>
+        <p aria-live="polite">{{ start() + 1 }}–{{ end() }} z {{ measurements().length }}</p>
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Następna strona pomiarów"
+          [disabled]="end() === measurements().length"
+          (click)="changePage(1)"
+        >
+          <app-icon name="right" />
+        </button>
+      </div>
+    }
+  </header>
+
+  @if (measurements().length > 0) {
+    <table aria-labelledby="measurements-title">
+      <thead class="session-row--labels">
+        <tr>
+          <th scope="col">Godzina</th>
+          <th scope="col">Tętno</th>
+          <th scope="col">Zapis</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sample of rows(); track sample.id) {
+          <tr>
+            <td>
+              <time [attr.datetime]="sample.measuredAtUtc">{{ sample.time }}</time>
+            </td>
+            <td>
+              <strong>{{ sample.formattedBpm }}</strong> bpm
+            </td>
+            <td>
+              @if (sample.sessionId === null) {
+                Poza sesją <small>Średnia z {{ sample.intervalSeconds }} s</small>
+              } @else {
+                {{ sessionNames().get(sample.sessionId) ?? 'W sesji' }}
+                <small>Próbka sesji · {{ sample.intervalSeconds }} s</small>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p class="state">Brak zapisanych pomiarów w tym dniu.</p>
+  }
+</section>
